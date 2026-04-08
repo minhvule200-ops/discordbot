@@ -48,9 +48,9 @@ client.on('messageCreate', async (message) => {
             content: `🎮 **Welcome to the RPG Adventure, ${message.author}!** 🎮\n\n` +
                      `You have entered a mysterious world full of quests, monsters, and treasures!\n\n` +
                      `**Your Adventure Begins Now!**\n` +
-                     `• Type \`!help\` to see available commands\n` +
-                     `• Type \`!status\` to check your character\n` +
-                     `• Type \`!quest\` to get your first quest\n\n` +
+                     `• Type \`!rpg help\` to see available commands\n` +
+                     `• Type \`!rpg profile\` to check your character\n` +
+                     `• Type \`!rpg adv\` to start fighting\n\n` +
                      `Good luck, brave adventurer! ⚔️`,
             flags: [] // You can add ephemeral later if needed
         });
