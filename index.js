@@ -37,3 +37,22 @@ if (!process.env.DISCORD_TOKEN) {
 }
 
 client.login(process.env.DISCORD_TOKEN);
+// Main Command Handler
+client.on('messageCreate', async (message) => {
+    // Ignore messages from bots
+    if (message.author.bot) return;
+
+    // !rpg command
+    if (message.content.toLowerCase() === '!rpg') {
+        await message.channel.send({
+            content: `🎮 **Welcome to the RPG Adventure, ${message.author}!** 🎮\n\n` +
+                     `You have entered a mysterious world full of quests, monsters, and treasures!\n\n` +
+                     `**Your Adventure Begins Now!**\n` +
+                     `• Type \`!help\` to see available commands\n` +
+                     `• Type \`!status\` to check your character\n` +
+                     `• Type \`!quest\` to get your first quest\n\n` +
+                     `Good luck, brave adventurer! ⚔️`,
+            flags: [] // You can add ephemeral later if needed
+        });
+    }
+});
