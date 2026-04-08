@@ -63,7 +63,7 @@ client.on('messageCreate', async (message) => {
     const args = content.split(/\s+/);   // Split for "!rpg class 1"
 
     // ====================== !rpg ======================
-    if (content === '!rpg') {
+    if (content === '!rpg start') {
         if (!players[userId]) {
             players[userId] = {
                 username: message.author.username,
@@ -80,34 +80,15 @@ client.on('messageCreate', async (message) => {
             };
             savePlayers();
 
+        }
+        if (players[userId]) {
+            return message.channel.send(`Your adventure has already begin!`)
             await message.channel.send(`🎉 **Welcome to the RPG World, ${message.author}!**\n\n` +
                 `Your character has been created!\n` +
                 `Type \`!rpg class\` to choose your class.`);
         } else {
             await message.channel.send(`Welcome back, ${message.author}! ⚔️`);
         }
-        return;
-    }
-
-    // ====================== !rpg class ======================
-    if (args[0] === '!rpg' && args[1] === 'class') {
-        if (!players[userId]) {
-            return message.channel.send("❌ You don't have a character yet! Type `!rpg` first.");
-        }
-
-        // If player already chose class
-        if (players[userId].class) {
-            return message.channel.send(`❌ You already made your choice of **${players[userId].class}**!`);
-        }
-
-        // Show class selection
-        const classList = `🏛️ **Choose your Class**\n\n` +
-            `1️⃣ **Chuyên Văn** → (ATK++, HP-, MP+)\n` +
-            `2️⃣ **Chuyên Toán** → (ATK+, HP++, MP-)\n` +
-            `3️⃣ **Chuyên Anh** → (ATK+, HP+, MP)\n\n` +
-            `Reply with: \`!rpg class 1\` or \`!rpg class 2\` or \`!rpg class 3\``;
-
-        await message.channel.send(classList);
         return;
     }
 
@@ -167,10 +148,10 @@ client.on('messageCreate', async (message) => {
     }
 
     // ====================== !status ======================
-    if (content === '!status') {
+    if (content === '!rpg profile') {
         const p = players[userId];
         if (!p) {
-            return message.channel.send("❌ You don't have a character yet! Type `!rpg` to begin your journey.");
+            return message.channel.send("❌ You don't have a character yet! Type `!rpg start` to begin your journey.");
         }
 
         const classText = p.class ? p.class : "Not chosen yet";
