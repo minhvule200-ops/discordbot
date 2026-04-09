@@ -278,13 +278,11 @@ client.on('messageCreate', async (message) => {   // ← Added "async" here
             `!rpg adv → Start fighting\n` +
             `!rpg profile → View profile\n` +
             `!rpg shop → Open shop\n` +
-            `!rpg 1 / !rpg 2 → Combat actions`        );
+            `!rpg 1 / !rpg 2 → Combat actions`       
+            );
     }
+});
 
-// Login
-if (!process.env.DISCORD_TOKEN) {
-    console.error('❌ DISCORD_TOKEN is missing in Environment variables!');
-    process.exit(1);   // This can cause exit 254
-}
-    
-client.login(process.env.DISCORD_TOKEN);
+client.login(process.env.DISCORD_TOKEN).catch(err => {
+    console.error('Login error:', err.message);
+});
