@@ -35,6 +35,7 @@ function savePlayers() {
 }
 
 loadPlayers();
+
 // Mobs template (base stats)
 const mobTemplates = [
     { name: "Gián", atk: 5, hp: 50, exp: 20, drop: [{name: "Cánh gián", chance: 10}] },
