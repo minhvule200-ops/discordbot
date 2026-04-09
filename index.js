@@ -46,6 +46,22 @@ const mobTemplates = [
 ];
 
 // ====================== BOT ======================
+const client = new Client({
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
+
+client.once('ready', () => {
+    console.log(`Bot is online as ${client.user.tag}`);
+});
+
+// Login using token from environment variables
+client.login(process.env.DISCORD_TOKEN);
+
+module.exports = app; // Optional, but harmles
     const content = message.content.toLowerCase().trim();
     const args = content.split(/\s+/);
     const userId = message.author.id;
