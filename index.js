@@ -223,6 +223,5 @@ client.on('messageCreate', async (message) => {
             `Your stats have been updated! Type \`!status\` to check.`);
         );
     }
-});
 
 client.login(process.env.DISCORD_TOKEN);
