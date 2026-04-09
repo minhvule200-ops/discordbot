@@ -163,6 +163,59 @@ client.on('messageCreate', async (message) => {
             `🪙 **Gold:** ${p.gold}\n` +
             `❤️ **Health:** ${p.health}/${p.hp}\n` +
             `⚔️ **ATK:** ${p.atk}   |   📖 **MP:** ${p.mp}`
+
+            {
+            
+    // ====================== !rpg starter ======================
+    if (args[0] === '!rpg' && args[1] === 'starter') {
+        if (!players[userId]) {
+            return message.channel.send("❌ You don't have a character yet! Type `!rpg` first.");
+        }
+
+        if (!players[userId].class) {
+            return message.channel.send("❌ You haven't chosen a class yet! Type `!rpg class` first.");
+        }
+
+        // Give starter items based on class (only once)
+        if (players[userId].weapon) {
+            return message.channel.send(`❌ You already received your starter items for **${players[userId].class}**!`);
+        }
+
+        if (players[userId].class === 'Chuyên Toán') {
+            players[userId].weapon = "Máy tính Casio (+3ATK)";
+            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
+            players[userId].ring = "Nhẫn Pytago (+10MP, +1% Bonus EXP)";
+            players[userId].atk += 3;
+            players[userId].mp += 10;
+            players[userId].bonusExp += 1;
+
+        } else if (players[userId].class === 'Chuyên Văn') {
+            players[userId].weapon = "Bút bi (+5ATK)";
+            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
+            players[userId].ring = "Nguyễn Du (+5MP, +2% Bonus EXP)";
+            players[userId].atk += 5;
+            players[userId].mp += 5;
+            players[userId].bonusExp += 2;
+
+        } else if (players[userId].class === 'Chuyên Anh') {
+            players[userId].weapon = "Từ điển (+4ATK)";
+            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
+            players[userId].ring = "PPF (+6MP, +2% Lucky Chance)";
+            players[userId].atk += 4;
+            players[userId].mp += 6;
+            players[userId].luckyChance = 2;
+        }
+
+        players[userId].def += 2;           // From armor
+        players[userId].health = players[userId].hp;
+
+        savePlayers();
+
+        await message.channel.send(`🎁 **Starter Equipment Received!**\n\n` +
+            `⚔️ **Weapon:** ${players[userId].weapon}\n` +
+            `🛡️ **Armor:** ${players[userId].armor}\n` +
+            `💍 **Ring:** ${players[userId].ring}\n\n` +
+            `Your stats have been updated! Type \`!status\` to check.`);
         );
     }
 });
