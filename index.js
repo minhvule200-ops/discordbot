@@ -283,7 +283,7 @@ client.on('messageCreate', async (message) => {
         return;
     }
     
-      // ====================== COMBAT SYSTEM (Improved with HP display) ======================
+         // ====================== !rpg adv - Start Adventure ======================
     if (content === '!rpg adv') {
         if (battles[userId]) {
             return message.channel.send("⚔️ You are already in a battle! Finish it first.");
@@ -313,19 +313,22 @@ client.on('messageCreate', async (message) => {
         battles[userId] = {
             mob: mob,
             turn: 'player',
-            toxicTurns: 0, // for Nhện venom
+            toxicTurns: 0,
             skillActive: false,
             skillTurnsLeft: 0
         };
 
-        await message.channel.send(`⚔️ **Adventure Started!**\n\nA wild **${mob.name}** appeared!\n` +
+        await message.channel.send(`⚔️ **Adventure Started!**\n\n` +
+            `A wild **${mob.name}** appeared!\n` +
             `Mob HP: ${mob.currentHp}/${mob.maxHp} | ATK: ${mob.atk}\n\n` +
             `Your HP: ${p.health}/${p.hp}\n\n` +
             `Choose action:\n` +
-            `**!rpg 1** → Basic Attack\n` +
-            `**!rpg 2** → Skill (${p.class ? "Available" : "No class yet"})`);
+            `!rpg 1 → Basic Attack\n` +
+            `!rpg 2 → Skill (${p.class ? "Available" : "No class yet"})`);
         return;
-    
+    }
+
+    // ====================== COMBAT SYSTEM ======================
     if (battles[userId]) {
         const battle = battles[userId];
         const mob = battle.mob;
@@ -333,26 +336,25 @@ client.on('messageCreate', async (message) => {
 
         // Player's turn
         if (battle.turn === 'player') {
-
             let damage = 0;
             let actionText = "";
 
             if (content === '!rpg 1') { // Basic Attack
                 damage = Math.max(1, p.atk - Math.floor(mob.atk * 0.2));
                 mob.currentHp -= damage;
-                actionText = `⚔️ You attacked for **${damage}** damage!`;
+                actionText = `⚔️ You attacked for ${damage} damage!`;
             } 
-            else if (content === '!rpg 2') { // Skill (simple version)
+            else if (content === '!rpg 2') { // Skill
                 if (p.mp < 20) {
                     return message.channel.send("❌ Not enough MP!");
                 }
                 p.mp -= 20;
-                damage = Math.floor(p.atk * 1.3); // Skill does 30% more damage
+                damage = Math.floor(p.atk * 1.3);
                 mob.currentHp -= damage;
-                actionText = `🔥 You used Skill and dealt **${damage}** damage!`;
+                actionText = `🔥 You used Skill and dealt ${damage} damage!`;
             } 
             else {
-                return message.channel.send("❌ Invalid action! Use `!rpg 1` (Attack) or `!rpg 2` (Skill)");
+                return message.channel.send("❌ Invalid action! Use `!rpg 1` or `!rpg 2`");
             }
 
             // Show attack result + current mob HP
@@ -361,16 +363,14 @@ client.on('messageCreate', async (message) => {
                 `**${mob.name}** HP: ${Math.max(0, mob.currentHp)} / ${mob.maxHp}`
             );
 
-            // Check if mob is defeated
+            // Check if mob defeated
             if (mob.currentHp <= 0) {
-                const expGain = Math.floor(mob.exp * (1 + p.bonusExp / 100));
+                const expGain = Math.floor(mob.exp * (1 + (p.bonusExp || 0) / 100));
                 p.xp += expGain;
+                await message.channel.send(`🎉 Victory! You gained ${expGain} EXP.`);
 
-                await message.channel.send(`🎉 **Victory!** You gained **${expGain}** EXP.`);
-
-                // Simple drop (you can improve later)
                 if (mob.drop && mob.drop.length > 0) {
-                    await message.channel.send(`🎁 Dropped: **${mob.drop[0].name}**`);
+                    await message.channel.send(`🎁 Dropped: ${mob.drop[0].name}`);
                 }
 
                 delete battles[userId];
@@ -378,24 +378,23 @@ client.on('messageCreate', async (message) => {
                 return;
             }
 
-            // Mob's turn
+            // Mob attacks
             battle.turn = 'mob';
             const mobDamage = Math.max(1, mob.atk - Math.floor(p.def / 2));
             p.health = Math.max(0, p.health - mobDamage);
 
             await message.channel.send(
-                `💥 **${mob.name}** attacked you for **${mobDamage}** damage!\n` +
-                `Your HP: **${p.health} / ${p.hp}**`
+                `💥 ${mob.name} attacked you for ${mobDamage} damage!\n` +
+                `Your HP: ${p.health} / ${p.hp}`
             );
 
-            // Check if player died
             if (p.health <= 0) {
-                await message.channel.send("💀 **You have been defeated!** Your HP has been reset to 50.");
+                await message.channel.send("💀 You have been defeated! HP reset to 50.");
                 p.health = 50;
                 delete battles[userId];
             } else {
                 battle.turn = 'player';
-                await message.channel.send(`\nYour turn again! Use \`!rpg 1\` or \`!rpg 2\``);
+                await message.channel.send(`\nYour turn again! Use !rpg 1 or !rpg 2`);
             }
 
             savePlayers();
@@ -414,6 +413,5 @@ client.on('messageCreate', async (message) => {
             `!rpg 1 / !rpg 2 → Combat actions`
         );
     }
-});
 
 client.login(process.env.DISCORD_TOKEN);
