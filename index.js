@@ -143,15 +143,15 @@ client.on('messageCreate', async (message) => {
             `⚔️ **ATK:** ${players[userId].atk}\n` +
             `❤️ **HP:** ${players[userId].hp}\n` +
             `📖 **MP:** ${players[userId].mp}\n\n` +
-            `Type \`!status\` to check your full profile.`);
+            `Type \`!rpg profile\` to check your full profile.`);
         return;
     }
     
-    // ====================== !status ======================
-    if (content === '!rpg profile') {
+        // ====================== !status ======================
+    if (content === '!status') {
         const p = players[userId];
         if (!p) {
-            return message.channel.send("❌ You don't have a character yet! Type `!rpg start` to begin your journey.");
+            return message.channel.send("❌ You don't have a character yet! Type `!rpg` to start.");
         }
 
         const classText = p.class ? p.class : "Not chosen yet";
@@ -162,10 +162,15 @@ client.on('messageCreate', async (message) => {
             `⭐ **Level:** ${p.level}  |  **XP:** ${p.xp}\n` +
             `🪙 **Gold:** ${p.gold}\n` +
             `❤️ **Health:** ${p.health}/${p.hp}\n` +
-            `⚔️ **ATK:** ${p.atk}   |   📖 **MP:** ${p.mp}`
-
-            {
-            
+            `⚔️ **ATK:** ${p.atk}   |   📖 **MP:** ${p.mp}\n` +     // Fixed line
+            `🛡️ **DEF:** ${p.def}\n` +
+            `🔨 **Weapon:** ${p.weapon || "None"}\n` +
+            `🛡️ **Armor:** ${p.armor || "None"}\n` +
+            `💍 **Ring:** ${p.ring || "None"}\n` +
+            `📈 **Bonus EXP:** ${p.bonusExp || 0}%\n` +
+            `🍀 **Lucky Chance:** ${p.luckyChance || 0}%`
+        );
+    }
     // ====================== !rpg starter ======================
     if (args[0] === '!rpg' && args[1] === 'starter') {
         if (!players[userId]) {
