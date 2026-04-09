@@ -146,11 +146,7 @@ client.on('messageCreate', async (message) => {
             `Type \`!status\` to check your full profile.`);
         return;
     }
-    if (content === '!rpg class') {
-        if (players[userId].class) {
-            return message.channel.send(`❌ You already made your choice of **${players[userId].class}**!`);
-        }
-
+    
     // ====================== !status ======================
     if (content === '!rpg profile') {
         const p = players[userId];
