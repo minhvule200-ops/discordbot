@@ -97,7 +97,7 @@ client.on('messageCreate', async (message) => {
         const choice = args[2];
 
         if (!players[userId]) {
-            return message.channel.send("❌ You don't have a character! Type `!rpg` first.");
+            return message.channel.send("❌ You don't have a character! Type `!rpg start` first.");
         }
 
         if (players[userId].class) {
@@ -146,6 +146,9 @@ client.on('messageCreate', async (message) => {
             `Type \`!status\` to check your full profile.`);
         return;
     }
+    if (content === '!rpg class') {
+        if (players[userId].class) {
+            return message.channel.send(`❌ You already made your choice of **${players[userId].class}**!`);
 
     // ====================== !status ======================
     if (content === '!rpg profile') {
