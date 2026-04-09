@@ -192,7 +192,7 @@ client.on('messageCreate', async (message) => {
         const classText = p.class || "Not chosen";
         await message.channel.send(
             `**${p.username}'s Profile**\n\n` +
-            `📜 Class: ${classText} | Level: ${p.level}\n` |  **XP:** ${p.xp}\n` +
+            `📜 Class: ${classText} | Level: ${p.level}\n` |  XP: ${p.xp}\n` +
             `❤️ Health: ${p.health}/${p.hp} | 🪙 VND: ${p.gold}\n` +
             `⚔️ ATK: ${p.atk} | 📖 MP: ${p.mp} | 🛡️ DEF: ${p.def}\n` +
             `🏃 AGI: ${p.agi} | 🎯 CRT: ${p.crt} | 🍀 Lucky: ${p.lucky}%\n` +
