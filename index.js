@@ -46,7 +46,7 @@ const mobTemplates = [
 ];
 
 // ====================== BOT ======================
-const client = new Client({
+const.client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
