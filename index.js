@@ -34,6 +34,7 @@ function savePlayers() {
         console.error('Save error:', e);
     }
 }
+loadPlayers();
 
 // Mobs template (base stats)
 const mobTemplates = [
@@ -41,7 +42,7 @@ const mobTemplates = [
     { name: "Giun đất", atk: 7, hp: 30, exp: 15, drop: [] },
     { name: "Chim bồ câu", atk: 10, hp: 25, exp: 20, drop: [{name: "Lông vũ", chance: 15}] },
     { name: "Nhện", atk: 12, hp: 20, exp: 25, drop: [{name: "Chân nhện", chance: 20}, {name: "Tơ đậm đặc", chance: 5}] },
-    { name: "Kiến", atk: 2, hp: 5, exp: 4, drop: [], count: 5 } // 5 kiến per round
+    { name: "Kiến", atk: 10, hp: 15, exp: 20, drop: [], count: 5 } // 5 kiến per round
 ];
 
 // ====================== BOT ======================
@@ -186,7 +187,7 @@ client.on('messageCreate', async (message) => {
     }
 
     // !status
-    if (content === '!status') {
+    if (content === '!rpg profile') {
         const classText = p.class || "Not chosen";
         await message.channel.send(
             `**${p.username}'s Profile**\n\n` +
@@ -282,95 +283,52 @@ client.on('messageCreate', async (message) => {
         return;
     }
     
-    // ====================== ADVENTURE - FIGHTING SYSTEM ======================
-    if (content === '!rpg adv') {
-        if (battles[userId]) {
-            return message.channel.send("⚔️ You are already in a battle! Finish it first.");
-        }
-
-        // Random mob + level scaling
-        let mobLevel = 1;
-        const rand = Math.random() * 100;
-        if (rand < 60) mobLevel = 1;
-        else if (rand < 90) mobLevel = 2;
-        else mobLevel = 3;
-
-        // Scale mob
-        const baseMob = mobTemplates[Math.floor(Math.random() * mobTemplates.length)];
-        const mob = {
-            ...baseMob,
-            name: baseMob.name + (mobLevel > 1 ? ` (Lv.${mobLevel})` : ""),
-            atk: baseMob.atk + (mobLevel - 1),
-            hp: baseMob.hp + (mobLevel - 1) * 2,
-            maxHp: baseMob.hp + (mobLevel - 1) * 2,
-            exp: Math.floor(baseMob.exp * Math.pow(1.2, mobLevel - 1)),
-            currentHp: baseMob.hp + (mobLevel - 1) * 2
-        };
-
-        if (baseMob.count) mob.count = baseMob.count; // for Kiến
-
-        battles[userId] = {
-            mob: mob,
-            turn: 'player',
-            toxicTurns: 0, // for Nhện venom
-            skillActive: false,
-            skillTurnsLeft: 0
-        };
-
-        await message.channel.send(`⚔️ **Adventure Started!**\n\nA wild **${mob.name}** appeared!\n` +
-            `Mob HP: ${mob.currentHp}/${mob.maxHp} | ATK: ${mob.atk}\n\n` +
-            `Your HP: ${p.health}/${p.hp}\n\n` +
-            `Choose action:\n` +
-            `**!rpg 1** → Basic Attack\n` +
-            `**!rpg 2** → Skill (${p.class ? "Available" : "No class yet"})`);
-        return;
-    }
-
-    // Combat actions
+      // ====================== COMBAT SYSTEM (Improved with HP display) ======================
     if (battles[userId]) {
         const battle = battles[userId];
         const mob = battle.mob;
+        const p = players[userId];
 
-        // Player turn
+        // Player's turn
         if (battle.turn === 'player') {
+
             let damage = 0;
+            let actionText = "";
 
             if (content === '!rpg 1') { // Basic Attack
-                damage = Math.max(1, p.atk - Math.floor(mob.atk * 0.2)); // simple defense
+                damage = Math.max(1, p.atk - Math.floor(mob.atk * 0.2));
                 mob.currentHp -= damage;
-                await message.channel.send(`⚔️ You attacked for **${damage}** damage!`);
+                actionText = `⚔️ You attacked for **${damage}** damage!`;
             } 
-            else if (content === '!rpg 2') { // Skill (placeholder - one skill per class)
-                if (p.mp < 20) return message.channel.send("❌ Not enough MP!");
-                
-                p.mp -= 20;
-                if (p.class === 'Chuyên Văn') {
-                    // Văn Võ Song Toàn - temp ATK boost
-                    await message.channel.send("🔥 **Văn Võ Song Toàn** activated! ATK increased for 2 turns.");
-                } else if (p.class === 'Chuyên Toán') {
-                    await message.channel.send("🛡️ **Chan Bố Mày Đi** activated! DEF increased.");
-                } else if (p.class === 'Chuyên Anh') {
-                    await message.channel.send("📢 **Như Tiếng Mẹ Đẻ** activated!");
+            else if (content === '!rpg 2') { // Skill (simple version)
+                if (p.mp < 20) {
+                    return message.channel.send("❌ Not enough MP!");
                 }
+                p.mp -= 20;
+                damage = Math.floor(p.atk * 1.3); // Skill does 30% more damage
+                mob.currentHp -= damage;
+                actionText = `🔥 You used Skill and dealt **${damage}** damage!`;
+            } 
+            else {
+                return message.channel.send("❌ Invalid action! Use `!rpg 1` (Attack) or `!rpg 2` (Skill)");
             }
 
-            // Check if mob dead
+            // Show attack result + current mob HP
+            await message.channel.send(
+                `${actionText}\n` +
+                `**${mob.name}** HP: ${Math.max(0, mob.currentHp)} / ${mob.maxHp}`
+            );
+
+            // Check if mob is defeated
             if (mob.currentHp <= 0) {
-                p.xp += mob.exp;
-                await message.channel.send(`✅ Victory! Gained **${mob.exp}** EXP.`);
+                const expGain = Math.floor(mob.exp * (1 + p.bonusExp / 100));
+                p.xp += expGain;
 
-                // Simple drop (Lucky affects lowest chance item)
+                await message.channel.send(`🎉 **Victory!** You gained **${expGain}** EXP.`);
+
+                // Simple drop (you can improve later)
                 if (mob.drop && mob.drop.length > 0) {
-                    let lowest = mob.drop.reduce((prev, curr) => prev.chance < curr.chance ? prev : curr);
-                    lowest.chance += p.lucky; // apply lucky to lowest drop
-
-                    const dropRoll = Math.random() * 100;
-                    for (let item of mob.drop) {
-                        if (dropRoll < item.chance) {
-                            await message.channel.send(`🎁 Dropped: **${item.name}**`);
-                            break;
-                        }
-                    }
+                    await message.channel.send(`🎁 Dropped: **${mob.drop[0].name}**`);
                 }
 
                 delete battles[userId];
@@ -378,20 +336,26 @@ client.on('messageCreate', async (message) => {
                 return;
             }
 
+            // Mob's turn
             battle.turn = 'mob';
-            // Mob attacks player
-            const mobDmg = Math.max(1, mob.atk - Math.floor(p.def / 2));
-            p.health = Math.max(0, p.health - mobDmg);
-            await message.channel.send(`💥 ${mob.name} attacked you for **${mobDmg}** damage!`);
+            const mobDamage = Math.max(1, mob.atk - Math.floor(p.def / 2));
+            p.health = Math.max(0, p.health - mobDamage);
 
+            await message.channel.send(
+                `💥 **${mob.name}** attacked you for **${mobDamage}** damage!\n` +
+                `Your HP: **${p.health} / ${p.hp}**`
+            );
+
+            // Check if player died
             if (p.health <= 0) {
-                await message.channel.send("💀 **You died!** HP reset to 50.");
+                await message.channel.send("💀 **You have been defeated!** Your HP has been reset to 50.");
                 p.health = 50;
                 delete battles[userId];
             } else {
                 battle.turn = 'player';
-                await message.channel.send(`Your turn again! HP: ${p.health}/${p.hp}`);
+                await message.channel.send(`\nYour turn again! Use \`!rpg 1\` or \`!rpg 2\``);
             }
+
             savePlayers();
             return;
         }
