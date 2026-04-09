@@ -10,10 +10,9 @@ const PORT = process.env.PORT || 10000;
 app.get('/', (req, res) => res.send('✅ RPG Bot is Running 24/7'));
 app.listen(PORT, () => console.log(`🌐 Web server running on port ${PORT}`));
 
-// ====================== PLAYER DATA ======================
+// Data file
 const DATA_FILE = path.join(__dirname, 'players.json');
 let players = {};
-let battles = {}; // Store active battles: userId -> battle data
 
 function loadPlayers() {
     try {
@@ -34,8 +33,8 @@ function savePlayers() {
         console.error('Save error:', e);
     }
 }
-loadPlayers();
 
+loadPlayers();
 // Mobs template (base stats)
 const mobTemplates = [
     { name: "Gián", atk: 5, hp: 50, exp: 20, drop: [{name: "Cánh gián", chance: 10}] },
