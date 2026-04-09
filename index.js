@@ -47,9 +47,16 @@ const mobTemplates = [
 
 // ====================== BOT ======================
 const client = new Client({
-    intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent]
-});
-
+    intents: [
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.MessageContent,
+    ],
+    rest: {
+        timeout: 30000,        // Increase to 30 seconds
+        retries: 3
+    }
+        
 client.once('ready', () => {
     console.log(`🤖 RPG Bot online as ${client.user.tag}`);
 });
