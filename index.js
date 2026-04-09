@@ -413,5 +413,6 @@ client.on('messageCreate', async (message) => {
             `!rpg 1 / !rpg 2 → Combat actions`
         );
     }
+});
 
 client.login(process.env.DISCORD_TOKEN);
