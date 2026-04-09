@@ -284,6 +284,48 @@ client.on('messageCreate', async (message) => {
     }
     
       // ====================== COMBAT SYSTEM (Improved with HP display) ======================
+    if (content === '!rpg adv') {
+        if (battles[userId]) {
+            return message.channel.send("⚔️ You are already in a battle! Finish it first.");
+        }
+
+        // Random mob + level scaling
+        let mobLevel = 1;
+        const rand = Math.random() * 100;
+        if (rand < 60) mobLevel = 1;
+        else if (rand < 90) mobLevel = 2;
+        else mobLevel = 3;
+
+        // Scale mob
+        const baseMob = mobTemplates[Math.floor(Math.random() * mobTemplates.length)];
+        const mob = {
+            ...baseMob,
+            name: baseMob.name + (mobLevel > 1 ? ` (Lv.${mobLevel})` : ""),
+            atk: baseMob.atk + (mobLevel - 1),
+            hp: baseMob.hp + (mobLevel - 1) * 2,
+            maxHp: baseMob.hp + (mobLevel - 1) * 2,
+            exp: Math.floor(baseMob.exp * Math.pow(1.2, mobLevel - 1)),
+            currentHp: baseMob.hp + (mobLevel - 1) * 2
+        };
+
+        if (baseMob.count) mob.count = baseMob.count; // for Kiến
+
+        battles[userId] = {
+            mob: mob,
+            turn: 'player',
+            toxicTurns: 0, // for Nhện venom
+            skillActive: false,
+            skillTurnsLeft: 0
+        };
+
+        await message.channel.send(`⚔️ **Adventure Started!**\n\nA wild **${mob.name}** appeared!\n` +
+            `Mob HP: ${mob.currentHp}/${mob.maxHp} | ATK: ${mob.atk}\n\n` +
+            `Your HP: ${p.health}/${p.hp}\n\n` +
+            `Choose action:\n` +
+            `**!rpg 1** → Basic Attack\n` +
+            `**!rpg 2** → Skill (${p.class ? "Available" : "No class yet"})`);
+        return;
+    
     if (battles[userId]) {
         const battle = battles[userId];
         const mob = battle.mob;
