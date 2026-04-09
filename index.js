@@ -46,21 +46,6 @@ const mobTemplates = [
 ];
 
 // ====================== BOT ======================
-// Your Discord bot
-const client = new Client({
-    intents: [
-        GatewayIntentBits.Guilds,
-        GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
-    ]
-        
-client.once('ready', () => {
-    console.log(`🤖 RPG Bot online as ${client.user.tag}`);
-});
-
-client.on('messageCreate', async (message) => {
-    if (message.author.bot) return;
-
     const content = message.content.toLowerCase().trim();
     const args = content.split(/\s+/);
     const userId = message.author.id;
