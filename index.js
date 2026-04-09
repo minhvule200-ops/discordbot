@@ -285,7 +285,6 @@ client.on('messageCreate', async (message) => {   // ← Added "async" here
 if (!process.env.DISCORD_TOKEN) {
     console.error('❌ DISCORD_TOKEN is missing in Environment variables!');
     process.exit(1);   // This can cause exit 254
-        );
     }
 });
 
