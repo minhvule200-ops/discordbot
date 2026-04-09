@@ -149,6 +149,7 @@ client.on('messageCreate', async (message) => {
     if (content === '!rpg class') {
         if (players[userId].class) {
             return message.channel.send(`❌ You already made your choice of **${players[userId].class}**!`);
+        }
 
     // ====================== !status ======================
     if (content === '!rpg profile') {
