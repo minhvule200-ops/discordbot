@@ -201,25 +201,25 @@ client.on('messageCreate', async (message) => {
         return;
     }
 
-    // ====================== SHOP SYSTEM ======================
+        // ====================== SHOP SYSTEM ======================
     if (content === '!rpg shop') {
-        const shopMessage = `🛒 **RPG Shop** (Currency: VND)\n\n` +
-            `**Items you can buy:**\n` +
-            `1️⃣ **HP Potion** — 10 VND (Restore 50 HP)\n` +
-            `2️⃣ **Lucky Potion** — 15 VND (+10% Lucky for 2 fights)\n` +
-            `3️⃣ **Speed Potion** — 15 VND (+20 AGI for 2 fights)\n` +
-            `4️⃣ **EXP Potion** — 15 VND (+20% EXP for 5 fights)\n\n` +
-            `**Items you can sell:**\n` +
+        await message.channel.send(
+            `🛒 **RPG Shop** (Currency: VND)\n\n` +
+            `Items you can buy:\n` +
+            `1️⃣ HP Potion — 10 VND (Restore 50 HP)\n` +
+            `2️⃣ Lucky Potion — 15 VND (+10% Lucky for 2 fights)\n` +
+            `3️⃣ Speed Potion — 15 VND (+20 AGI for 2 fights)\n` +
+            `4️⃣ EXP Potion — 15 VND (+20% EXP for 5 fights)\n\n` +
+            `Items you can sell:\n` +
             `• Cánh gián — 20 VND\n` +
             `• Lông vũ — 15 VND\n` +
             `• Chân nhện — 10 VND\n` +
             `• Tơ đậm đặc — 40 VND\n\n` +
-            `**How to use:**\n` +
-            `• Buy: \`!rpg buy 1\` (or 2, 3, 4)\n` +
-            `• Sell: \`!rpg sell Cánh gián\` (exact name)\n\n` +
-            `Your current VND: **${p.gold}**`;
-
-        await message.channel.send(shopMessage);
+            `How to use:\n` +
+            `Buy: !rpg buy 1   (or 2, 3, 4)\n` +
+            `Sell: !rpg sell Cánh gián\n\n` +
+            `Your current VND: ${p.gold}`
+        );
         return;
     }
 
@@ -228,7 +228,7 @@ client.on('messageCreate', async (message) => {
         const choice = parseInt(args[2]);
 
         if (!choice || choice < 1 || choice > 4) {
-            return message.channel.send("❌ Invalid item! Use `!rpg buy 1`, `!rpg buy 2`, etc.");
+            return message.channel.send("❌ Invalid item! Use !rpg buy 1, !rpg buy 2, etc.");
         }
 
         if (choice === 1) { // HP Potion
@@ -236,34 +236,34 @@ client.on('messageCreate', async (message) => {
             p.gold -= 10;
             const heal = Math.min(50, p.hp - p.health);
             p.health += heal;
-            await message.channel.send(`✅ Bought **HP Potion**! Restored **${heal}** HP. Your HP is now ${p.health}/${p.hp}`);
+            await message.channel.send(`✅ Bought HP Potion! Restored ${heal} HP. Current HP: ${p.health}/${p.hp}`);
         } 
         else if (choice === 2) { // Lucky Potion
             if (p.gold < 15) return message.channel.send("❌ Not enough VND!");
             p.gold -= 15;
-            p.lucky += 10;  // Temporary - we'll add duration tracking later
-            await message.channel.send(`✅ Bought **Lucky Potion**! Lucky +10% for next 2 fights.`);
+            p.lucky += 10;
+            await message.channel.send(`✅ Bought Lucky Potion! Lucky +10% for next 2 fights.`);
         } 
-        else if (choice === 3) { // Speed Potion (AGI)
+        else if (choice === 3) { // Speed Potion
             if (p.gold < 15) return message.channel.send("❌ Not enough VND!");
             p.gold -= 15;
             p.agi += 20;
-            await message.channel.send(`✅ Bought **Speed Potion**! AGI +20 for next 2 fights.`);
+            await message.channel.send(`✅ Bought Speed Potion! AGI +20 for next 2 fights.`);
         } 
         else if (choice === 4) { // EXP Potion
             if (p.gold < 15) return message.channel.send("❌ Not enough VND!");
             p.gold -= 15;
             p.bonusExp += 20;
-            await message.channel.send(`✅ Bought **EXP Potion**! +20% EXP for next 5 fights.`);
+            await message.channel.send(`✅ Bought EXP Potion! +20% EXP for next 5 fights.`);
         }
 
         savePlayers();
         return;
     }
 
-    // Sell items (simple version for now)
+    // Simple Sell (for drop items)
     if (args[0] === '!rpg' && args[1] === 'sell') {
-        const itemName = args.slice(2).join(' ');   // support names with spaces
+        const itemName = args.slice(2).join(' ').trim().toLowerCase();
 
         const sellPrices = {
             "cánh gián": 20,
@@ -272,18 +272,14 @@ client.on('messageCreate', async (message) => {
             "tơ đậm đặc": 40
         };
 
-        const key = itemName.toLowerCase();
-        const price = sellPrices[key];
+        const price = sellPrices[itemName];
 
         if (!price) {
-            return message.channel.send("❌ This item cannot be sold or doesn't exist in shop.");
+            return message.channel.send("❌ This item cannot be sold or doesn't exist.");
         }
 
-        // For now, we assume player has the item (we'll improve inventory later)
-        // Simple version: just give money (you can expand later)
         p.gold += price;
-        await message.channel.send(`✅ Sold **${itemName}** for **${price}** VND!`);
-
+        await message.channel.send(`✅ Sold ${itemName} for ${price} VND!`);
         savePlayers();
         return;
     }
