@@ -1,6 +1,6 @@
-const rpgCommands = require('../commands/rpg');
-const combatCommands = require('../commands/combat');
-const shopCommands = require('../commands/shop');
+const rpgCommands = require('discordbot/commands/rpg');
+const combatCommands = require('discordbot/commands/combat');
+const shopCommands = require('discordbot/commands/shop');
 
 module.exports = async (message, players, savePlayers) => {
     if (message.author.bot) return;
