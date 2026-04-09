@@ -93,10 +93,97 @@ client.on('messageCreate', async (message) => {
 
     const p = players[userId];
 
-    // !rpg class logic (kept from before - shortened for space)
-    if (args[0] === '!rpg' && args[1] === 'class') {
-        // ... (paste your previous class selection code here if needed)
-        // I'll assume you already have it working
+   // !rpg class - Show classes
+    if (args[0] === '!rpg' && args[1] === 'class' && !args[2]) {
+        if (!players[userId]) return message.channel.send("❌ Type `!rpg` first to create your character.");
+
+        if (players[userId].class) {
+            return message.channel.send(`❌ You already made your choice of **${players[userId].class}**!`);
+        }
+
+        const classList = `🏛️ **Choose your Class**\n\n` +
+            `1️⃣ **Chuyên Văn** → (ATK++, HP-, MP+)\n` +
+            `2️⃣ **Chuyên Toán** → (ATK+, HP++, MP-)\n` +
+            `3️⃣ **Chuyên Anh** → (ATK+, HP+, MP)\n\n` +
+            `Reply with: \`!rpg class 1\` | \`!rpg class 2\` | \`!rpg class 3\``;
+
+        await message.channel.send(classList);
+        return;
+    }
+
+    // !rpg class {number} - Choose class + Give starter items
+    if (args[0] === '!rpg' && args[1] === 'class' && args[2]) {
+        if (!players[userId]) return message.channel.send("❌ Type `!rpg` first!");
+        if (players[userId].class) {
+            return message.channel.send(`❌ You already made your choice of **${players[userId].class}**!`);
+        }
+
+        const choice = args[2];
+        let chosenClass = '';
+        let atkBonus = 0, hpBonus = 0, mpBonus = 0;
+
+        if (choice === '1') {                    // Chuyên Văn
+            chosenClass = 'Chuyên Văn';
+            atkBonus = 10;
+            hpBonus = -10;
+            mpBonus = 10;
+
+            players[userId].weapon = "Bút bi (+5ATK)";
+            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
+            players[userId].ring = "Nguyễn Du (+5MP, +2% Bonus EXP)";
+
+            players[userId].atk += 5;      // Weapon
+            players[userId].mp += 5;       // Ring
+            players[userId].bonusExp += 2;
+
+        } else if (choice === '2') {             // Chuyên Toán
+            chosenClass = 'Chuyên Toán';
+            atkBonus = 5;
+            hpBonus = 20;
+            mpBonus = -10;
+
+            players[userId].weapon = "Máy tính Casio (+3ATK)";
+            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
+            players[userId].ring = "Nhẫn Pytago (+10MP, +1% Bonus EXP)";
+
+            players[userId].atk += 3;      // Weapon
+            players[userId].mp += 10;      // Ring
+            players[userId].bonusExp += 1;
+
+        } else if (choice === '3') {             // Chuyên Anh
+            chosenClass = 'Chuyên Anh';
+            atkBonus = 5;
+            hpBonus = 10;
+            mpBonus = 0;
+
+            players[userId].weapon = "Từ điển (+4ATK)";
+            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
+            players[userId].ring = "PPF (+6MP, +2% Lucky Chance)";
+
+            players[userId].atk += 4;      // Weapon
+            players[userId].mp += 6;       // Ring
+            players[userId].luckyChance = 2;
+
+        } else {
+            return message.channel.send("❌ Invalid choice! Use `!rpg class 1`, `!rpg class 2`, or `!rpg class 3`.");
+        }
+
+        // Apply base class bonuses
+        players[userId].class = chosenClass;
+        players[userId].atk += atkBonus;
+        players[userId].hp += hpBonus;
+        players[userId].mp += mpBonus;
+        players[userId].health = players[userId].hp;   // Set current health
+        players[userId].def += 2;                      // Armor DEF
+
+        savePlayers();
+
+        await message.channel.send(`✅ **Class Selected: ${chosenClass}**\n\n` +
+            `🎁 **You received starter items:**\n` +
+            `⚔️ Weapon: **${players[userId].weapon}**\n` +
+            `🛡️ Armor: **${players[userId].armor}**\n` +
+            `💍 Ring: **${players[userId].ring}**\n\n` +
+            `Type \`!status\` to see your full character!`);
         return;
     }
 
@@ -113,76 +200,7 @@ client.on('messageCreate', async (message) => {
         );
         return;
     }
-// !rpg class - Show class list
-    if (args[0] === '!rpg' && args[1] === 'class' && !args[2]) {
-        if (!players[userId]) return message.channel.send("❌ Type `!rpg` first!");
-        if (players[userId].class) return message.channel.send(`❌ You already chose **${players[userId].class}**!`);
-
-        await message.channel.send(
-            `🏛️ **Choose your Class**\n\n` +
-            `1️⃣ **Chuyên Văn** → (ATK++, HP-, MP+)\n` +
-            `2️⃣ **Chuyên Toán** → (ATK+, HP++, MP-)\n` +
-            `3️⃣ **Chuyên Anh** → (ATK+, HP+, MP)\n\n` +
-            `Reply with: \`!rpg class 1\` | \`!rpg class 2\` | \`!rpg class 3\``
-        );
-        return;
-    }
-
-    // !rpg class {number} - Choose class + give starter items
-    if (args[0] === '!rpg' && args[1] === 'class' && args[2]) {
-        if (!players[userId]) return message.channel.send("❌ Type `!rpg` first!");
-        if (players[userId].class) return message.channel.send(`❌ You already chose **${players[userId].class}**!`);
-
-        const choice = args[2];
-        let chosenClass = '';
-        let atkBonus = 0, hpBonus = 0, mpBonus = 0;
-
-        if (choice === '1') { // Chuyên Văn
-            chosenClass = 'Chuyên Văn';
-            atkBonus = 10; hpBonus = -10; mpBonus = 10;
-            players[userId].weapon = "Bút bi (+5ATK)";
-            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
-            players[userId].ring = "Nguyễn Du (+5MP, +2% Bonus EXP)";
-            players[userId].atk += 5;
-            players[userId].mp += 5;
-            players[userId].bonusExp += 2;
-        } 
-        else if (choice === '2') { // Chuyên Toán
-            chosenClass = 'Chuyên Toán';
-            atkBonus = 5; hpBonus = 20; mpBonus = -10;
-            players[userId].weapon = "Máy tính Casio (+3ATK)";
-            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
-            players[userId].ring = "Nhẫn Pytago (+10MP, +1% Bonus EXP)";
-            players[userId].atk += 3;
-            players[userId].mp += 10;
-            players[userId].bonusExp += 1;
-        } 
-        else if (choice === '3') { // Chuyên Anh
-            chosenClass = 'Chuyên Anh';
-            atkBonus = 5; hpBonus = 10; mpBonus = 0;
-            players[userId].weapon = "Từ điển (+4ATK)";
-            players[userId].armor = "Áo Tân Định (+10HP, +2DEF)";
-            players[userId].ring = "PPF (+6MP, +2% Lucky Chance)";
-            players[userId].atk += 4;
-            players[userId].mp += 6;
-            players[userId].luckyChance = 2;
-        } 
-        else {
-            return message.channel.send("❌ Invalid choice! Use 1, 2 or 3.");
-        }
-
-        players[userId].class = chosenClass;
-        players[userId].atk += atkBonus;
-        players[userId].hp += hpBonus;
-        players[userId].mp += mpBonus;
-        players[userId].health = players[userId].hp;
-        players[userId].def += 2;
-
-        savePlayers();
-
-        await message.channel.send(`✅ **Class Selected: ${chosenClass}**\n\n🎁 You received your starter equipment!\nType \`!status\` to view your profile.`);
-        return;
-    }
+    
     // ====================== ADVENTURE - FIGHTING SYSTEM ======================
     if (content === '!rpg adv') {
         if (battles[userId]) {
