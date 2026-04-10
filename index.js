@@ -278,8 +278,7 @@ client.on('messageCreate', async (message) => {   // ← Added "async" here
             `!rpg adv → Start fighting\n` +
             `!rpg profile → View profile\n` +
             `!rpg shop → Open shop\n` +
-            `!rpg 1 / !rpg 2 → Combat actions`     
-            );
+            `!rpg 1 / !rpg 2 → Combat actions`    );
             {
             
 client.login(process.env.DISCORD_TOKEN)
