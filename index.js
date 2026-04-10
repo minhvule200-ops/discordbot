@@ -283,6 +283,4 @@ client.on('messageCreate', async (message) => {   // ← Added "async" here
     }
 });
 
-client.login(process.env.DISCORD_TOKEN).catch(err => {
-    console.error('Login error:', err.message);
-});
+client.login(process.env.DISCORD_TOKEN)
